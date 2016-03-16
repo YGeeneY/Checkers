@@ -35,21 +35,27 @@ class Board:
         # list of raws representing initialed deck
         self.state = [produce_raw(raw_number) for raw_number in range(8)]
 
-    def action(self, x, y, strike=False, queen=False):
+    def action(self, x, y):
         coordinates = self.separate(x, y)
         if coordinates['success']:
             cords = coordinates['coordinates']
             validation = self.data_valid(**cords)
             if validation['success']:
-                return self.recognize_move(**cords)
+                action = self.recognize_move(**cords)
+                if action['success']:
+                    if action['action'] == 'move':
+                        return 'make a move'
+                    elif action['action'] == 'strike':
+                        return 'make a strike'
+                else:
+                    return action
             else:
                 return validation
 
         else:
             return coordinates
 
-        # TODO valid_data................OK
-        # TODO recognize nove............50/50
+        # TODO recognize move............50/50
             # TODO recognise queen moves
         # TODO move
         # TODO queen move
@@ -57,8 +63,14 @@ class Board:
         # TODO multi queen strike
         # TODO state changer
 
+    def move(self, x_d, y_d, x_l, y_l):
+        pass
+
     def recognize_move(self, x_d, y_d, x_l, y_l):
         checker = self.state[x_d][x_l]
+        if checker != self.next_move:
+            return {'success': False, 'cause': 'It\'s %s turn' % (self.next_move, )}
+
         if checker in ('B', "W"):
             diff = abs(x_d - y_d)
             if diff == 1:
@@ -69,7 +81,7 @@ class Board:
                     return {'success': False, 'cause': 'You can\'t move backwards'}
 
             elif diff == 2:
-                return {'success': True, 'value': 'strike'}
+                return {'success': True, 'action': 'strike'}
 
             else:
                 return {'success': False, 'cause': 'Move is illegal'}
@@ -183,6 +195,6 @@ if __name__ == '__main__':
     board = Board()
     from time import time
     start = time()
-    a = board.action('g1', 'b4')
+    a = board.action('a3', 'b4')
     print(a, time() - start)
 
