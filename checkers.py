@@ -5,7 +5,7 @@ from string import ascii_letters
 
 class Board:
     LETTERS = ascii_letters[:8]
-    next_move = 'W'
+    next_move = 'B'
 
     def __init__(self):
         def cell_marker(raw):
@@ -44,7 +44,8 @@ class Board:
                 action = self.recognize_move(**cords)
                 if action['success']:
                     if action['action'] == 'move':
-                        return 'make a move'
+                        return self.move(**cords)
+
                     elif action['action'] == 'strike':
                         return 'make a strike'
                 else:
@@ -57,14 +58,25 @@ class Board:
 
         # TODO recognize move............50/50
             # TODO recognise queen moves
-        # TODO move
         # TODO queen move
         # TODO multi strike
         # TODO multi queen strike
         # TODO state changer
 
     def move(self, x_d, y_d, x_l, y_l):
-        pass
+        checker = self.state[x_d][x_l]
+        cell_to_move = self.state[y_d][y_l]
+        if cell_to_move != 'E':
+            return {'success': False, 'cause': 'Move to cell is not empty'}
+
+        self.state[x_d][x_l], self.state[y_d][y_l] = 'E', checker
+        self.change_move()
+        return {'success': True, 'state': self.state}
+
+    def change_move(self):
+        result = ['W', 'B']
+        result.remove(self.next_move)
+        return result[0]
 
     def recognize_move(self, x_d, y_d, x_l, y_l):
         checker = self.state[x_d][x_l]
