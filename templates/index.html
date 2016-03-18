@@ -9,110 +9,193 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
 </head>
 <body>
+
+<form>
+	<legend>Take a move</legend>
+
+	<div class="form-group">
+		<label for="from"> From </label>
+		<input type="text" class="form-control" name="" id="from" placeholder="Input...">
+	</div>
+
+	<div class="form-group">
+		<label for="to"> To </label>
+		<input type="text" class="form-control" name="" id="to" placeholder="Input...">
+	</div>
+	<button type="submit" id="move" class="btn btn-primary">Submit</button>
+</form>
+
 <style>
-    .grey{
-        background: lightgrey;
-    }
+
     .col-sm-1{
-        height: 80px;
+        height: 50px;
+        width: 50px;
+    }
+    .grey{
+        background: saddlebrown;
+        color: white;
+        font-size: 20px;
+        font-weight: 500;
+    }
+    .white{
+        background: sandybrown;
+    }
+    .low{
+        height: 20px;
     }
 </style>
+<div style="margin: auto; width: 400px">
+    <span class="col-sm-1 low">A</span>
+    <span class="col-sm-1 low">B</span>
+    <span class="col-sm-1 low">C</span>
+    <span class="col-sm-1 low">D</span>
+    <span class="col-sm-1 low">E</span>
+    <span class="col-sm-1 low">F</span>
+    <span class="col-sm-1 low">G</span>
+    <span class="col-sm-1 low">H</span>
+
+
     <div class="row" data-row="1">
         <div class="col-sm-1 grey"></div>
-        <div class="col-sm-1"></div>
+        <div class="col-sm-1 white"></div>
         <div class="col-sm-1 grey"></div>
-        <div class="col-sm-1"></div>
+        <div class="col-sm-1 white"></div>
         <div class="col-sm-1 grey"></div>
-        <div class="col-sm-1"></div>
+        <div class="col-sm-1 white"></div>
         <div class="col-sm-1 grey"></div>
-        <div class="col-sm-1"></div>
+        <div class="col-sm-1 white"></div>
     </div>
     <div class="row"  data-row="2">
-        <div class="col-sm-1"></div>
+        2
+        <div class="col-sm-1 white"></div>
         <div class="col-sm-1 grey"></div>
-        <div class="col-sm-1"></div>
+        <div class="col-sm-1 white"></div>
         <div class="col-sm-1 grey"></div>
-        <div class="col-sm-1"></div>
+        <div class="col-sm-1 white"></div>
         <div class="col-sm-1 grey"></div>
-        <div class="col-sm-1"></div>
+        <div class="col-sm-1 white"></div>
         <div class="col-sm-1 grey"></div>
     </div>
     <div class="row" data-row="3">
+        3
         <div class="col-sm-1 grey"></div>
-        <div class="col-sm-1"></div>
+        <div class="col-sm-1 white"></div>
         <div class="col-sm-1 grey"></div>
-        <div class="col-sm-1"></div>
+        <div class="col-sm-1 white"></div>
         <div class="col-sm-1 grey"></div>
-        <div class="col-sm-1"></div>
+        <div class="col-sm-1 white"></div>
         <div class="col-sm-1 grey"></div>
-        <div class="col-sm-1"></div>
+        <div class="col-sm-1 white"></div>
     </div>
     <div class="row"  data-row="4">
-        <div class="col-sm-1"></div>
+        4
+        <div class="col-sm-1 white"></div>
         <div class="col-sm-1 grey"></div>
-        <div class="col-sm-1"></div>
+        <div class="col-sm-1 white"></div>
         <div class="col-sm-1 grey"></div>
-        <div class="col-sm-1"></div>
+        <div class="col-sm-1 white"></div>
         <div class="col-sm-1 grey"></div>
-        <div class="col-sm-1"></div>
+        <div class="col-sm-1 white"></div>
         <div class="col-sm-1 grey"></div>
     </div>
     <div class="row" data-row="5">
+        5
         <div class="col-sm-1 grey"></div>
-        <div class="col-sm-1"></div>
+        <div class="col-sm-1 white"></div>
         <div class="col-sm-1 grey"></div>
-        <div class="col-sm-1"></div>
+        <div class="col-sm-1 white"></div>
         <div class="col-sm-1 grey"></div>
-        <div class="col-sm-1"></div>
+        <div class="col-sm-1 white"></div>
         <div class="col-sm-1 grey"></div>
-        <div class="col-sm-1"></div>
+        <div class="col-sm-1 white"></div>
     </div>
     <div class="row"  data-row="6">
-        <div class="col-sm-1"></div>
+        6
+        <div class="col-sm-1 white"></div>
         <div class="col-sm-1 grey"></div>
-        <div class="col-sm-1"></div>
+        <div class="col-sm-1 white"></div>
         <div class="col-sm-1 grey"></div>
-        <div class="col-sm-1"></div>
+        <div class="col-sm-1 white"></div>
         <div class="col-sm-1 grey"></div>
-        <div class="col-sm-1"></div>
+        <div class="col-sm-1 white"></div>
         <div class="col-sm-1 grey"></div>
     </div>
     <div class="row" data-row="7">
+        7
         <div class="col-sm-1 grey"></div>
-        <div class="col-sm-1"></div>
+        <div class="col-sm-1 white"></div>
         <div class="col-sm-1 grey"></div>
-        <div class="col-sm-1"></div>
+        <div class="col-sm-1 white"></div>
         <div class="col-sm-1 grey"></div>
-        <div class="col-sm-1"></div>
+        <div class="col-sm-1 white"></div>
         <div class="col-sm-1 grey"></div>
-        <div class="col-sm-1"></div>
+        <div class="col-sm-1 white"></div>
     </div>
     <div class="row"  data-row="8">
-        <div class="col-sm-1"></div>
+        8
+        <div class="col-sm-1 white"></div>
         <div class="col-sm-1 grey"></div>
-        <div class="col-sm-1"></div>
+        <div class="col-sm-1 white"></div>
         <div class="col-sm-1 grey"></div>
-        <div class="col-sm-1"></div>
+        <div class="col-sm-1 white"></div>
         <div class="col-sm-1 grey"></div>
-        <div class="col-sm-1"></div>
+        <div class="col-sm-1 white"></div>
         <div class="col-sm-1 grey"></div>
     </div>
 
 </div>
 
-
 <script>
-    var ws = new WebSocket("ws://localhost:8800/websocket");
+    var ws = new WebSocket("ws://localhost:8800/websocket/" + {{ path }});
 
     ws.onopen = function() {
        console.log('Esatblished connection')
     };
 
     ws.onmessage = function (evt) {
-       console.log(JSON.parse(evt.data));
+       data = JSON.parse(evt.data);
+       render(data.state);
     };
 
-    console.log($('.row'))
+    $('#move').on('click', function(e){
+        e.preventDefault();
+        var response = {
+            from: $('#from').val(),
+            to: $('#to').val()
+        };
+
+        ws.send(JSON.stringify(response))
+    });
+
+    function render (state){
+        var first = 'aceg',
+            second = 'bdfh';
+
+        var raws = document.getElementsByClassName('row');
+        for(var i=0; i< raws.length; i++){
+            var raw = raws[i];
+                raw_children = raw.getElementsByClassName('grey');
+
+            for(var j=0; j < raw_children.length; j++){
+                if( (i+1) % 2 ){
+                    var letter = state[i][first[j]];
+                    if (letter != 'E'){
+                        raw_children[j].innerHTML = letter
+                    } else {
+                        raw_children[j].innerHTML = ''
+                    }
+                } else {
+                    var letter2 = state[i][second[j]];
+                    if (letter2 != 'E'){
+                        raw_children[j].innerHTML = letter2
+                    } else {
+                        raw_children[j].innerHTML = ''
+                    }
+                }
+            }
+        }
+    }
+
 </script>
 </body>
 </html>
