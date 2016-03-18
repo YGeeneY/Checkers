@@ -47,7 +47,7 @@ class Board:
                         return self.move(**cords)
 
                     elif action['action'] == 'strike':
-                        return 'make a strike'
+                        return self.strike(**cords)
                 else:
                     return action
             else:
@@ -58,10 +58,7 @@ class Board:
 
         # TODO recognize move............50/50
             # TODO recognise queen moves
-        # TODO queen move
-        # TODO multi strike
-        # TODO multi queen strike
-        # TODO state changer
+        # TODO queen strike
 
     @staticmethod
     def separate(x, y):
@@ -105,7 +102,7 @@ class Board:
         if checker != self.next_move:
             return {'success': False, 'cause': 'It\'s %s turn' % (self.next_move, )}
 
-        if checker in ('B', "W"):
+        if checker in ('B', 'W'):
             diff = abs(x_d - y_d)
             if diff == 1:
                 to_compare = x_d + 1 if self.next_move == 'B' else x_d - 1
@@ -157,7 +154,7 @@ class Board:
         target_raw = avg(x_d, y_d)
         return target_column, target_raw
 
-    def can_strike(self, x_d, x_l, **kwargs):
+    def can_strike(self, x_d, x_l):
         result = []
 
         striker_column_index = self.LETTERS.index(x_l)
@@ -167,8 +164,6 @@ class Board:
 
         strike_cells = product(columns, rows)
 
-        from_cell = self.state[x_d][x_l]
-
         for i in strike_cells:
             target = self.strike_target_cell(x_d, x_l, i[1], i[0])
 
@@ -176,9 +171,32 @@ class Board:
             strike_cell = self.state[i[1]][i[0]]
 
             if strike_cell == 'E' and target_cell == self.return_opposite_move():
-                result.append((from_cell, target_cell, strike_cell))
+                result.append((
+                    (target[1], target[0]),  # target cell
+                    (i[1], i[0]),            # to cell
+                ))
 
         return result
+
+    def strike(self, x_d, x_l, y_d,  y_l):
+        strike_options = self.can_strike(x_d=x_d, x_l=x_l)
+
+        if strike_options:
+            for i in strike_options:
+                target_cell, to_cell = i
+                if (y_d, y_l) == to_cell:
+                    self.state[x_d][x_l] = 'E'
+                    self.state[target_cell[0]][target_cell[1]] = 'E'
+                    self.state[to_cell[0]][to_cell[1]] = self.next_move
+
+                    if not self.can_strike(y_d, y_l):
+                        self.change_next_move()
+
+                    return {'success': True, 'state': self.state}
+                else:
+                    return {'success': False, 'cause': 'Illegal move'}
+        else:
+            return {'success': False, 'cause': 'Can not make a strike'}
 
     def return_opposite_move(self):
         result = ['W', 'B']

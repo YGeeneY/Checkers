@@ -53,6 +53,7 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         try:
             message = json.loads(message)
             response = rooms[self.game_id]['game'].action(message['from'], message['to'])
+            print(response)
             for client in rooms[self.game_id]['clients']:
                 client.write_message(json.dumps(response))
 
