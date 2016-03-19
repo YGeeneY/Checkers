@@ -6,6 +6,7 @@ from string import ascii_letters
 class Board:
     LETTERS = ascii_letters[:8]
     next_move = 'B'
+    on_edge = (0, 7)
 
     def __init__(self):
         def cell_marker(raw):
@@ -206,10 +207,19 @@ class Board:
     def change_next_move(self):
         self.next_move = self.return_opposite_move()
 
+    @staticmethod
+    def neighbours(index):
+        if not index or index == 7:
+            return [abs(index - 1), ]
+        else:
+            return [index - 1, index + 1, ]
+
+    def diagonal_way(self, x, y):
+        step = x - y
+        while x not in self.on_edge:
+            x -= step
+            yield x
 
 if __name__ == '__main__':
     board = Board()
-    from time import time
-    start = time()
-    a = board.can_strike(x_d=2, x_l='c')
-    print(a)
+
