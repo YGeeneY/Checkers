@@ -212,12 +212,13 @@ class Board:
     def change_next_move(self):
         self.next_move = self.return_opposite_move()
 
-    @staticmethod
-    def neighbours(index):
-        if not index or index == 7:
-            return [abs(index - 1), ]
-        else:
-            return [index - 1, index + 1, ]
+    def neighbours_cell(self, x_d, x_l, **kwargs):
+        def get_neighbour(index):
+            if index in self.on_edge:
+                return [abs(index - 1), ]
+            else:
+                return [index - 1, index + 1, ]
+        return product(get_neighbour(x_l), get_neighbour(x_d))
 
     def diagonal_way(self, **kwargs):
         def diagonal(x, y):
@@ -228,9 +229,10 @@ class Board:
 
         rows_way = diagonal(kwargs['x_d'], kwargs['x_direction'])
         column_way = diagonal(kwargs['y_d'], kwargs['y_direction'])
-        print(list(zip(rows_way, column_way)))
+        return zip(rows_way, column_way)
 
 if __name__ == '__main__':
     board = Board()
     pprint(list(enumerate(board.state)))
-    print(board.diagonal_way(x_d=1, x_direction=2, y_d=1, y_direction=2))
+
+    print(list(board.neighbours_cell(x_d=6, x_l=1)))
