@@ -1,5 +1,6 @@
 import traceback
 from itertools import repeat, product
+from pprint import pprint
 from string import ascii_letters
 
 
@@ -14,7 +15,7 @@ class Board:
             :param raw: raw number
             :return: list of black cells for current raw
             """
-            return 'aceg' if (raw + 1) % 2 else 'bdfh'
+            return range(0, 8, 2) if (raw + 1) % 2 else range(1, 8, 2)
 
         def cup_marker(raw):
             """
@@ -61,8 +62,7 @@ class Board:
             # TODO recognise queen moves
         # TODO queen strike
 
-    @staticmethod
-    def separate(x, y):
+    def separate(self, x, y):
         """
         :param x: incoming params for cell e.g. a2 b3
         :param y: incoming params for cell e.g. a2 b3
@@ -70,8 +70,8 @@ class Board:
         """
         try:
             xys = dict(
-                x_l=x[0],
-                y_l=y[0],
+                x_l=self.LETTERS.index(x[0]),
+                y_l=self.LETTERS.index(y[0]),
                 x_d=int(x[1]) - 1,
                 y_d=int(y[1]) - 1,
             )
@@ -81,20 +81,25 @@ class Board:
             print(traceback.format_exc())
             return {'success': False, 'cause': 'Invalid args'}
 
-    def data_valid(self, x_d, y_d, x_l, y_l):
+    def data_valid(self, x_l, x_d, y_l, y_d):
         """
         :param x_d: incoming coord
         :param y_d: incoming coord
         :param x_l: incoming coord
         :param y_l: incoming coord
-        :return: dict success and cause if unsuccessful
+        :return: dict: success True or False and cause if unsuccessful
         Validating coordinates
         """
-        if x_d in range(8) and y_d in range(8):
-            if x_l in self.LETTERS and y_l in self.LETTERS:
-                return {'success': True}
-            else:
-                return {'success': False, 'cause': 'Column identifier is wrong'}
+        valid_in_range = all(map(lambda x: x in range(8), [x_l, x_d, y_l, y_d]))
+        if valid_in_range:
+            try:
+                temp = self.state[x_d][x_l], self.state[y_d][y_l]
+                if self.state[x_d][x_l] == self.next_move:
+                    return {'success': True}
+                else:
+                    return {'success': False, 'cause': 'It\'s %s turn' % (self.next_move, )}
+            except KeyError:
+                return {'success': False, 'cause': 'You can\'t manipulate with white cells'}
         else:
             return {'success': False, 'cause': 'Raw identifier is wrong'}
 
@@ -214,12 +219,18 @@ class Board:
         else:
             return [index - 1, index + 1, ]
 
-    def diagonal_way(self, x, y):
-        step = x - y
-        while x not in self.on_edge:
-            x -= step
-            yield x
+    def diagonal_way(self, **kwargs):
+        def diagonal(x, y):
+            step = x - y
+            while x not in self.on_edge:
+                x -= step
+                yield x
+
+        rows_way = diagonal(kwargs['x_d'], kwargs['x_direction'])
+        column_way = diagonal(kwargs['y_d'], kwargs['y_direction'])
+        print(list(zip(rows_way, column_way)))
 
 if __name__ == '__main__':
     board = Board()
-
+    pprint(list(enumerate(board.state)))
+    print(board.diagonal_way(x_d=1, x_direction=2, y_d=1, y_direction=2))
