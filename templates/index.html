@@ -168,29 +168,18 @@
     });
 
     function render (state){
-        var first = 'aceg',
-            second = 'bdfh';
+        var first = [1,3,5,7],
+            second = [2,4,6,8];
 
         var raws = document.getElementsByClassName('row');
         for(var i=0; i< raws.length; i++){
-            var raw = raws[i];
-                raw_children = raw.getElementsByClassName('grey');
-
+            var raw = raws[i],
+                raw_children = raw.getElementsByClassName('col-sm-1');
             for(var j=0; j < raw_children.length; j++){
-                if( (i+1) % 2 ){
-                    var letter = state[i][first[j]];
-                    if (letter != 'E'){
-                        raw_children[j].innerHTML = letter
-                    } else {
-                        raw_children[j].innerHTML = ''
-                    }
+                if (state[i][j] == undefined || state[i][j] == 'E'){
+                    raw_children[j].innerHTML = '';
                 } else {
-                    var letter2 = state[i][second[j]];
-                    if (letter2 != 'E'){
-                        raw_children[j].innerHTML = letter2
-                    } else {
-                        raw_children[j].innerHTML = ''
-                    }
+                    raw_children[j].innerHTML = state[i][j];
                 }
             }
         }
