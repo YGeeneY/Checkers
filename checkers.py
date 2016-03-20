@@ -1,11 +1,12 @@
 import traceback
+from functools import wraps
 from itertools import repeat, product
 from pprint import pprint
 
 
 class Board:
     LETTERS = 'abcdefgh'
-    next_move = 'B'
+    next_move = 'W'
     on_edge = (0, 7)
 
     def __init__(self):
@@ -93,20 +94,51 @@ class Board:
         step = 1 if self.next_move == 'B' else -1
         to_cell_index = kwargs['y_d'], kwargs['y_l']
 
+        player_checkers = self.all_current_move_checkers()
+        for checker in player_checkers:
+            can_strike = self.can_strike(**checker)
+            if can_strike:
+                for option in can_strike:
+                    bingo = False
+                    for key in kwargs:
+                        if option[key] != kwargs[key]:
+                            pass
+                            # TODO here! 
+                    if bingo:
+                        return self.state_changer(**option)
+
         for neighbour_cell in self.neighbours_cells(kwargs['x_d'], kwargs['x_l']):
             if (kwargs['x_d'] + step) == neighbour_cell[0] and to_cell_index == neighbour_cell:
                 return self.move(**kwargs)
-
-            diagonal = list(self.diagonal_way(x_d_next=neighbour_cell[0], x_l_next=neighbour_cell[1], **kwargs))
-            if len(diagonal) > 1:
-                if to_cell_index == diagonal[1]:
-                    return self.strike(target_cell=diagonal[0], **kwargs)
 
     def move(self, **kwargs):
         if self.state[kwargs['y_d']][kwargs['y_l']] == 'E':
             return self.state_changer(**kwargs)
         else:
             return {'success': False, 'cause': 'in move'}
+
+    def can_strike(self, **kwargs):
+        result = []
+        for neighbour_cell in self.neighbours_cells(kwargs['x_d'], kwargs['x_l']):
+            diagonal = list(self.diagonal_way(x_d_next=neighbour_cell[0], x_l_next=neighbour_cell[1], **kwargs))
+            if len(diagonal) > 1:
+                possible_y_d, possible_y_l = diagonal[1]
+                if self.state[neighbour_cell[0]][neighbour_cell[1]] == self.return_opposite_move():
+                    if self.state[possible_y_d][possible_y_l] == 'E':
+                        result.append({'y_d': possible_y_d,
+                                       'y_l': possible_y_l,
+                                       't_d': neighbour_cell[0],
+                                       't_l': neighbour_cell[1]})
+        return result
+
+    def strike(self, **kwargs):
+        if self.state[kwargs['y_d']][kwargs['y_l']] == 'E':
+            if self.state[kwargs['t_d']][kwargs['t_l']] == self.return_opposite_move():
+                return self.state_changer(**kwargs)
+            else:
+                return {'success': False, 'cause': 'Target cell is not %s' % (self.return_opposite_move(),)}
+        else:
+            return {'success': False, 'cause': 'Move_to cell is not empty'}
 
     def state_changer(self, t_l=False, t_d=False, **kwargs):
         current = self.state[kwargs['x_d']][kwargs['x_l']]
@@ -118,11 +150,6 @@ class Board:
         else:
             self.change_next_move()
         return {'success': True, 'state': self.state}
-
-    def strike(self, **kwargs):
-        # TODO strike
-        # TODO can strike
-        print('hello i\'m strike', kwargs)
 
     def return_opposite_move(self):
         result = ['W', 'B']
@@ -151,6 +178,17 @@ class Board:
         column_way = diagonal(kwargs['x_l'], kwargs['x_l_next'])
         return zip(rows_way, column_way)
 
+    def all_current_move_checkers(self):
+        result = []
+        for raw in range(len(self.state)):
+            for column in self.state[raw]:
+                if self.state[raw][column] == self.next_move:
+                    result.append({'x_d': raw,
+                                   'x_l': column})
+        return result
+
 if __name__ == '__main__':
     board = Board()
     pprint(list(enumerate(board.state)))
+    print(board.all_current_move_checkers())
+    print({'a': 1, 'b':2} == {'b':2, 'a': 1})
