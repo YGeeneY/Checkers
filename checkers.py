@@ -94,18 +94,16 @@ class Board:
         step = 1 if self.next_move == 'B' else -1
         to_cell_index = kwargs['y_d'], kwargs['y_l']
 
-        player_checkers = self.all_current_move_checkers()
-        for checker in player_checkers:
-            can_strike = self.can_strike(**checker)
-            if can_strike:
-                for option in can_strike:
-                    bingo = False
-                    for key in kwargs:
-                        if option[key] != kwargs[key]:
-                            pass
-                            # TODO here! 
-                    if bingo:
-                        return self.state_changer(**option)
+        current_can_strike = self.can_strike(**kwargs)
+        if current_can_strike:
+            for option in current_can_strike:
+                if (option['y_d'], option['y_l']) == to_cell_index:
+                    return self.state_changer(x_d=kwargs['x_d'], x_l=kwargs['x_l'], **option)
+            return {'success': False, 'cause': 'this checker should strike first!'}
+        else:
+            for checker in self.all_current_move_checkers():
+                if self.can_strike(**checker):
+                    return {'success': False, 'cause': 'You should should strike first!'}
 
         for neighbour_cell in self.neighbours_cells(kwargs['x_d'], kwargs['x_l']):
             if (kwargs['x_d'] + step) == neighbour_cell[0] and to_cell_index == neighbour_cell:
@@ -170,13 +168,13 @@ class Board:
     def diagonal_way(self, **kwargs):
         def diagonal(x, y):
             step = x - y
-            while x not in self.on_edge:
+            while x in range(7):
                 x -= step
                 yield x
 
         rows_way = diagonal(kwargs['x_d'], kwargs['x_d_next'])
         column_way = diagonal(kwargs['x_l'], kwargs['x_l_next'])
-        return zip(rows_way, column_way)
+        return list(zip(rows_way, column_way))
 
     def all_current_move_checkers(self):
         result = []
@@ -185,7 +183,7 @@ class Board:
                 if self.state[raw][column] == self.next_move:
                     result.append({'x_d': raw,
                                    'x_l': column})
-        return result
+        yield from result
 
 if __name__ == '__main__':
     board = Board()

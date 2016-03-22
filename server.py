@@ -28,26 +28,16 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
     #     super(EchoWebSocket, self).__init__(*args, **kwargs)
 
     def check_origin(self, origin):
-        print(origin)
         return True
 
     def open(self, game_id):
         room = rooms.get(game_id, False)
         self.game_id = game_id
-
         if not room:
-            rooms[game_id] = dict(
-                game=Board(),
-                clients=[self]
-            )
-
+            rooms[game_id] = dict(game=Board(),clients=[self])
         else:
             rooms[game_id]['clients'].append(self)
-
         self.write_message(json.dumps({'state': rooms[game_id]['game'].state}))
-
-        pprint(rooms)
-
 
     def on_message(self, message):
         try:
