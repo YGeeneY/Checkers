@@ -34,16 +34,16 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         room = rooms.get(game_id, False)
         self.game_id = game_id
         if not room:
-            rooms[game_id] = dict(game=Board(),clients=[self])
+            rooms[game_id] = dict(game=Board(), clients=[self])
         else:
             rooms[game_id]['clients'].append(self)
-        self.write_message(json.dumps({'state': rooms[game_id]['game'].state}))
+        rooms[game_id]['game'].init_client(self)
+        self.write_message(json.dumps(rooms[game_id]['game'].serialize()))
 
     def on_message(self, message):
         try:
             message = json.loads(message)
             response = rooms[self.game_id]['game'].action(message['from'], message['to'])
-            print(response)
             for client in rooms[self.game_id]['clients']:
                 client.write_message(json.dumps(response))
 

@@ -7,7 +7,7 @@ from pprint import pprint
 class Board:
     LETTERS = 'abcdefgh'
     next_move = 'W'
-    on_edge = (0, 7)
+    off_board = {'B': 0, 'W': 0}
 
     def __init__(self):
         def cell_marker(raw):
@@ -37,7 +37,7 @@ class Board:
         # list of rows representing initialed deck
         self.state = [produce_raw(raw_number) for raw_number in range(8)]
 
-    def action(self, x, y):
+    def action(self, x, y, **kwargs):
         coordinates = self.separate(x, y)
         if coordinates['success']:
             cords = coordinates['coordinates']
@@ -91,6 +91,9 @@ class Board:
             return {'success': False, 'cause': 'Raw identifier is wrong'}
 
     def recognize_move(self, **kwargs):
+        if self.state[kwargs['x_d']][kwargs['x_l']][-1] == 'Q':
+            return self.recognize_queen_move(**kwargs)
+
         step = 1 if self.next_move == 'B' else -1
         to_cell_index = kwargs['y_d'], kwargs['y_l']
 
@@ -105,11 +108,34 @@ class Board:
                 if self.can_strike(**checker):
                     return {'success': False, 'cause': 'You should should strike first!'}
 
-        for neighbour_cell in self.neighbours_cells(kwargs['x_d'], kwargs['x_l']):
+        for neighbour_cell in self.neighbours_cells(**kwargs):
             if (kwargs['x_d'] + step) == neighbour_cell[0] and to_cell_index == neighbour_cell:
                 return self.move(**kwargs)
 
         return {'success': False, 'cause': 'Illegal move'}
+
+    def recognize_queen_move(self, **kwargs):
+        to_cell_index = (kwargs['y_d'], kwargs['y_l'])
+        neighbours = self.neighbours_cells(**kwargs)
+        for neighbour in neighbours:
+            diagonal = self.diagonal_way(x_d_next=neighbour[0], x_l_next=neighbour[1], **kwargs)
+            if to_cell_index in diagonal:
+                active_diagonal = diagonal[:diagonal.index(to_cell_index) + 1]
+                enemies = list(map(lambda x: self.state[x[0]][x[1]] in self.enemies(), active_diagonal))
+
+                if any(enemies):
+                    if enemies.count(True) == 1 and self.state[active_diagonal[-1][0]][active_diagonal[-1][1]] == 'E':
+                        t_d, t_l = active_diagonal[enemies.index(True)]
+                        return self.state_changer(t_d=t_d, t_l=t_l, **kwargs)
+                    else:
+                        return {'success': False, 'cause': 'More than 1 enemy in a diagonal'}
+
+                for cell in active_diagonal:
+                    if self.state[cell[0]][cell[1]] in self.alliance():
+                        return {'success': False, 'cause': 'Alliance is on the way'}
+                return self.state_changer(**kwargs)
+
+        return {'success': False, 'cause': 'Invalid move'}
 
     def move(self, **kwargs):
         if self.state[kwargs['y_d']][kwargs['y_l']] == 'E':
@@ -119,11 +145,11 @@ class Board:
 
     def can_strike(self, **kwargs):
         result = []
-        for neighbour_cell in self.neighbours_cells(kwargs['x_d'], kwargs['x_l']):
+        for neighbour_cell in self.neighbours_cells(**kwargs):
             diagonal = list(self.diagonal_way(x_d_next=neighbour_cell[0], x_l_next=neighbour_cell[1], **kwargs))
             if len(diagonal) > 1:
                 possible_y_d, possible_y_l = diagonal[1]
-                if self.state[neighbour_cell[0]][neighbour_cell[1]] == self.return_opposite_move():
+                if self.state[neighbour_cell[0]][neighbour_cell[1]] in self.enemies():
                     if self.state[possible_y_d][possible_y_l] == 'E':
                         result.append({'y_d': possible_y_d,
                                        'y_l': possible_y_l,
@@ -133,36 +159,43 @@ class Board:
 
     def state_changer(self, t_l=False, t_d=False, **kwargs):
         current = self.state[kwargs['x_d']][kwargs['x_l']]
-        if kwargs['y_d'] == 7 and current == 'B':
-            current = 'BQ'
-        if not kwargs['y_d'] and current == 'W':
-            current = 'WQ'
+        if (kwargs['y_d'] == 7 and current == 'B') or (not kwargs['y_d'] and current == 'W'):
+            current += 'Q'
         self.state[kwargs['x_d']][kwargs['x_l']] = 'E'
         self.state[kwargs['y_d']][kwargs['y_l']] = current
 
         if t_d and t_l:
             self.state[t_d][t_l] = 'E'
+            self.off_board[self.return_opposite_move()] += 1
             if not self.can_strike(x_d=kwargs['y_d'], x_l=kwargs['y_l']):
                 self.change_next_move()
         else:
             self.change_next_move()
-        return {'success': True, 'state': self.state}
+        return self.serialize()
 
     def return_opposite_move(self):
         result = ['W', 'B']
         result.remove(self.next_move)
         return result[0]
 
+    def enemies(self):
+        enemy = self.return_opposite_move()
+        return [enemy, enemy+'Q']
+
+    def alliance(self):
+        return [self.next_move, self.next_move + 'Q']
+
     def change_next_move(self):
         self.next_move = self.return_opposite_move()
 
-    def neighbours_cells(self, x_d, x_l):
+    @staticmethod
+    def neighbours_cells(**kwargs):
         def get_neighbour(index):
-            if index in self.on_edge:
+            if index in (0, 7):
                 return [abs(index - 1), ]
             else:
                 return [index - 1, index + 1, ]
-        return product(get_neighbour(x_d), get_neighbour(x_l))
+        return product(get_neighbour(kwargs['x_d']), get_neighbour(kwargs['x_l']))
 
     @staticmethod
     def diagonal_way(**kwargs):
@@ -185,7 +218,18 @@ class Board:
                                    'x_l': column})
         yield from result
 
+    def serialize(self):
+        for key in self.off_board:
+            if self.off_board[key] == 12:
+                return {'success': False, 'cause': 'Game over beaches'}
+        return dict(
+            success=True,
+            state=self.state,
+            next_move=self.next_move,
+            off_board=self.off_board
+        )
+
 if __name__ == '__main__':
     board = Board()
     pprint(list(enumerate(board.state)))
-    print(board.all_current_move_checkers())
+    board.enemies()
