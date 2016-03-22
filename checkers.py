@@ -81,7 +81,7 @@ class Board:
         if valid_in_range:
             try:
                 temp = self.state[x_d][x_l], self.state[y_d][y_l]
-                if self.state[x_d][x_l] == self.next_move:
+                if self.state[x_d][x_l][0] == self.next_move:
                     return {'success': True}
                 else:
                     return {'success': False, 'cause': 'It\'s %s turn' % (self.next_move, )}
@@ -109,6 +109,8 @@ class Board:
             if (kwargs['x_d'] + step) == neighbour_cell[0] and to_cell_index == neighbour_cell:
                 return self.move(**kwargs)
 
+        return {'success': False, 'cause': 'Illegal move'}
+
     def move(self, **kwargs):
         if self.state[kwargs['y_d']][kwargs['y_l']] == 'E':
             return self.state_changer(**kwargs)
@@ -131,11 +133,17 @@ class Board:
 
     def state_changer(self, t_l=False, t_d=False, **kwargs):
         current = self.state[kwargs['x_d']][kwargs['x_l']]
+        if kwargs['y_d'] == 7 and current == 'B':
+            current = 'BQ'
+        if not kwargs['y_d'] and current == 'W':
+            current = 'WQ'
         self.state[kwargs['x_d']][kwargs['x_l']] = 'E'
         self.state[kwargs['y_d']][kwargs['y_l']] = current
 
         if t_d and t_l:
             self.state[t_d][t_l] = 'E'
+            if not self.can_strike(x_d=kwargs['y_d'], x_l=kwargs['y_l']):
+                self.change_next_move()
         else:
             self.change_next_move()
         return {'success': True, 'state': self.state}
@@ -156,7 +164,8 @@ class Board:
                 return [index - 1, index + 1, ]
         return product(get_neighbour(x_d), get_neighbour(x_l))
 
-    def diagonal_way(self, **kwargs):
+    @staticmethod
+    def diagonal_way(**kwargs):
         def diagonal(x, y):
             step = x - y
             while x in range(7):
@@ -180,4 +189,3 @@ if __name__ == '__main__':
     board = Board()
     pprint(list(enumerate(board.state)))
     print(board.all_current_move_checkers())
-    print({'a': 1, 'b':2} == {'b':2, 'a': 1})
