@@ -1,5 +1,4 @@
 import traceback
-from functools import wraps
 from itertools import repeat, product
 from pprint import pprint
 
@@ -210,13 +209,10 @@ class Board:
         return list(zip(rows_way, column_way))
 
     def all_current_move_checkers(self):
-        result = []
         for raw in range(len(self.state)):
             for column in self.state[raw]:
                 if self.state[raw][column] == self.next_move:
-                    result.append({'x_d': raw,
-                                   'x_l': column})
-        yield from result
+                    yield {'x_d': raw, 'x_l': column}
 
     def serialize(self):
         for key in self.off_board:
@@ -232,4 +228,3 @@ class Board:
 if __name__ == '__main__':
     board = Board()
     pprint(list(enumerate(board.state)))
-    board.enemies()
