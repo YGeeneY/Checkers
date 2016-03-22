@@ -129,15 +129,6 @@ class Board:
                                        't_l': neighbour_cell[1]})
         return result
 
-    def strike(self, **kwargs):
-        if self.state[kwargs['y_d']][kwargs['y_l']] == 'E':
-            if self.state[kwargs['t_d']][kwargs['t_l']] == self.return_opposite_move():
-                return self.state_changer(**kwargs)
-            else:
-                return {'success': False, 'cause': 'Target cell is not %s' % (self.return_opposite_move(),)}
-        else:
-            return {'success': False, 'cause': 'Move_to cell is not empty'}
-
     def state_changer(self, t_l=False, t_d=False, **kwargs):
         current = self.state[kwargs['x_d']][kwargs['x_l']]
         self.state[kwargs['x_d']][kwargs['x_l']] = 'E'
