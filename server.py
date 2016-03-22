@@ -37,7 +37,6 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
             rooms[game_id] = dict(game=Board(), clients=[self])
         else:
             rooms[game_id]['clients'].append(self)
-        rooms[game_id]['game'].init_client(self)
         self.write_message(json.dumps(rooms[game_id]['game'].serialize()))
 
     def on_message(self, message):

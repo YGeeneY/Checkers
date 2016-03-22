@@ -200,13 +200,13 @@ class Board:
     def diagonal_way(**kwargs):
         def diagonal(x, y):
             step = x - y
-            while x in range(7):
-                x -= step
+            while x in range(8):
                 yield x
+                x -= step
 
         rows_way = diagonal(kwargs['x_d'], kwargs['x_d_next'])
         column_way = diagonal(kwargs['x_l'], kwargs['x_l_next'])
-        return list(zip(rows_way, column_way))
+        return list(zip(rows_way, column_way))[1:]
 
     def all_current_move_checkers(self):
         for raw in range(len(self.state)):
