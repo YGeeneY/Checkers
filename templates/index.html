@@ -154,7 +154,7 @@
 </div>
 
 <script>
-    var ws = new WebSocket("ws://192.168.0.174:8800/websocket/" + {{ path }});
+    var ws = new WebSocket("ws://localhost:8800/websocket/" + {{ path }});
 
     ws.onopen = function() {
        console.log('Esatblished connection')

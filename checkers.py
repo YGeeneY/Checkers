@@ -2,6 +2,8 @@ import traceback
 from itertools import repeat, product
 from pprint import pprint
 
+import time
+
 
 class Board:
     LETTERS = 'abcdefgh'
@@ -35,8 +37,10 @@ class Board:
                                                        repeat(cup_marker(raw_number)))}
         # list of rows representing initialed deck
         self.state = [produce_raw(raw_number) for raw_number in range(8)]
+    # TODO initialize from kwargs
 
     def action(self, x, y, **kwargs):
+        self.start = time.time()
         coordinates = self.separate(x, y)
         if coordinates['success']:
             cords = coordinates['coordinates']
@@ -63,7 +67,7 @@ class Board:
             )
             return {'success': True, 'coordinates': xys}
 
-        except (ValueError, AttributeError):
+        except (ValueError, AttributeError, IndexError):
             print(traceback.format_exc())
             return {'success': False, 'cause': 'Invalid args'}
 
@@ -124,6 +128,7 @@ class Board:
 
                 if any(enemies):
                     if enemies.count(True) == 1 and self.state[active_diagonal[-1][0]][active_diagonal[-1][1]] == 'E':
+                        # TODO BUG POSSIBLE ! map all e active_diagonal[enemies.i:]
                         t_d, t_l = active_diagonal[enemies.index(True)]
                         return self.state_changer(t_d=t_d, t_l=t_l, **kwargs)
                     else:
@@ -215,6 +220,8 @@ class Board:
                     yield {'x_d': raw, 'x_l': column}
 
     def serialize(self):
+        if hasattr(self, 'start'):
+            print((time.time() - self.start)*1000, ' ms')
         for key in self.off_board:
             if self.off_board[key] == 12:
                 return {'success': False, 'cause': 'Game over beaches'}
